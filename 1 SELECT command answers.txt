@@ -2826,6 +2826,8 @@ SELECT ENAME
 2 rows in set (0.00 sec)
 
 
+
+
 //////////////////////////////////////////////////ASS--- 6-1 //////////////////////
 1.	Display the Name and Title of the Employee who do not have a manager.
 
@@ -3417,4 +3419,265 @@ mysql>  SELECT A. DEPTNO , A.HIREDATE , ENAME R3 FROM EMP A JOIN (SELECT DEPTNO 
 |     50 | 1981-07-19 | SUPRIYA  |
 +--------+------------+----------+
 7 rows in set (0.00 sec)
+
+32.	Create a query to display the name, hiredate, and salary for all employees who have both the same salary and commission as Scott.
+ANS->
+
+mysql> SELECT ENAME, HIREDATE , SAL FROM EMP WHERE SAL=(SELECT SAL FROM EMP WHERE ENAME='SCOTT') AND (CASE WHEN COMM IS NULL THEN 1  WHEN COMM IS NOT NULL THEN COMM  END);
++-------+------------+------+
+| ENAME | HIREDATE   | SAL  |
++-------+------------+------+
+| SCOTT | 1982-12-09 | 3000 |
+| FORD  | 1981-12-03 | 3000 |
++-------+------------+------+
+2 rows in set (0.00 sec)
+
+33.	List all the employees who have at least one person reporting to them.
+
+mysql> SELECT R1  FROM (SELECT A.ENAME R1 , COUNT(*) R2 FROM EMP A JOIN EMP B ON A.EMPNO=B.MGR GROUP BY A.ENAME)T1 WHERE R2 >= 1;
++---------+
+| R1      |
++---------+
+| JONES   |
+| BLAKE   |
+| CLARK   |
+| SCOTT   |
+| KING    |
+| FORD    |
+| HOFFMAN |
+| GRASS   |
++---------+
+8 rows in set (0.00 sec)
+
+
+34.	List the name of the employees with their immediate higher authority.
+
+mysql> SELECT A.ENAME `EMPLOYEE`, CASE WHEN A.MGR IS NULL THEN 'NOT HAVE ANY HIGHER AUTHORITY' ELSE B.ENAME END `IMMEDIATE HIGHER AUTHORITY` FROM EMP A LEFT JOIN EMP B ON A.MGR=B.EMPNO;
++----------+-------------------------------+
+| EMPLOYEE | IMMEDIATE HIGHER AUTHORITY    |
++----------+-------------------------------+
+| GITA     | GRASS                         |
+| VRUSHALI | GRASS                         |
+| SHARMIN  | GRASS                         |
+| BANDISH  | GRASS                         |
+| SMITH    | FORD                          |
+| AARAV    | FORD                          |
+| THOMAS   | GRASS                         |
+| ALLEN    | BLAKE                         |
+| WARD     | BLAKE                         |
+| JONES    | KING                          |
+| MARTIN   | BLAKE                         |
+| BLAKE    | KING                          |
+| CLARK    | KING                          |
+| SCOTT    | JONES                         |
+| KING     | NOT HAVE ANY HIGHER AUTHORITY |
+| FRED     | KING                          |
+| TURNER   | BLAKE                         |
+| ADAMS    | SCOTT                         |
+| JAMES    | BLAKE                         |
+| FORD     | JONES                         |
+| HOFFMAN  | JONES                         |
+| GRASS    | HOFFMAN                       |
+| MILLER   | CLARK                         |
+| AARUSH   | FORD                          |
+| ALEX     | BLAKE                         |
+| NATASHA  | GRASS                         |
+| SANGITA  | GRASS                         |
+| SUPRIYA  | GRASS                         |
++----------+-------------------------------+
+28 rows in set (0.00 sec)
+
+35.	List all the employees who do not manage any one.
+36.	Write a query to display a ‘*’ against the row of the most recently hired employee.
+
+ANS->
+mysql> UPDATE EMP JOIN (SELECT MAX(HIREDATE) SALARY FROM EMP ) AS T1 ON EMP.HIREDATE=T1.SALARY SET EMP.STAR= CASE WHEN EMP.HIREDATE= T1.SALARY THEN '*' ELSE ' ' END ;
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+mysql> SELECT * FROM EMP;
++-------+----------+--------+---------------------+------+------------+------+------+--------+---------+--------------+------------+------------+----------+------+
+| EMPNO | ENAME    | GENDER | JOB                 | MGR  | HIREDATE   | SAL  | COMM | DEPTNO | BONUSID | USER NAME    | PWD        | PHONE      | isActive | STAR |
++-------+----------+--------+---------------------+------+------------+------+------+--------+---------+--------------+------------+------------+----------+------+
+|  6001 | GITA     | F      | Compliance officers | 7920 | 1981-07-19 | 1750 | NULL |     30 |       1 | GITA         | sales@2017 | NULL       |        1 |      |
+|  6129 | VRUSHALI | F      | Compliance officers | 7920 | 1981-07-19 | 1750 | NULL |     50 |       1 | VRUSHALI     | PUN@8877   | NULL       |        1 |      |
+|  6473 | SHARMIN  | F      | Public Relation     | 7920 | 1981-07-19 | 1750 | NULL |     20 |       1 | SHARMIN      | a12recmpm  | NULL       |        1 |      |
+|  6781 | BANDISH  | F      | Public Relation     | 7920 | 1981-07-19 | 1750 | NULL |     20 |       1 | BANDISH      | a12recmpm  | NULL       |        1 |      |
+|  7369 | SMITH    | M      | CLERK               | 7902 | 1980-12-17 |  800 | NULL |     20 |       2 | TRITONE      | a12recmpm  | 7032300023 |        0 |      |
+|  7415 | AARAV    | M      | CLERK               | 7902 | 1981-12-31 | 3350 | NULL |     10 |    NULL | AARAV        | NULL       | 7032300084 |        0 |      |
+|  7421 | THOMAS   | M      | CLERK               | 7920 | 1981-07-19 | 1750 | NULL |     10 |       1 | THOMAS       | r50mpm     | 7032300011 |        0 |      |
+|  7499 | ALLEN    | M      | SALESMAN            | 7698 | 1981-02-20 | 1600 |  300 |     30 |       4 | ALWAYS TESTE | sales@2017 | 7032300096 |        1 |      |
+|  7521 | WARD     | M      | SALESMAN            | 7698 | 1981-02-22 | 1250 |  500 |     30 |       1 | WARD         | sales@2017 | 7132300034 |        1 |      |
+|  7566 | JONES    | M      | MANAGER             | 7839 | 1981-04-02 | 2975 | NULL |     20 |       4 | HONEYCOMB    | a12recmpm  | 7132300039 |        1 |      |
+|  7654 | MARTIN   | M      | SALESMAN            | 7698 | 1981-09-28 | 1250 | 1400 |     30 |       6 | LIFE RACER   | sales@2017 | 7132300050 |        1 |      |
+|  7698 | BLAKE    | M      | MANAGER             | 7839 | 1981-05-01 | 2850 | NULL |     30 |       1 | BIG BEN      | sales@2017 | 7132300027 |        1 |      |
+|  7782 | CLARK    | M      | MANAGER             | 7839 | 1981-06-09 | 2450 | NULL |     10 |       3 | CLARK        | r50mpm     | 7032300001 |        1 |      |
+|  7788 | SCOTT    | M      | ANALYST             | 7566 | 1982-12-09 | 3000 | NULL |     20 |       3 | WHITE SAND   | a12recmpm  | NULL       |        1 |      |
+|  7839 | KING     | M      | PRESIDENT           | NULL | 1981-11-17 | 5000 | NULL |     10 |       1 | KING         | r50mpm     | 7132300081 |        1 |      |
+|  7840 | FRED     | M      | vice PRESIDENT      | 7839 | 1983-08-09 | 5000 | NULL |     20 |       1 | SAND STONE   | a12recmpm  | NULL       |        1 | *    |
+|  7844 | TURNER   | M      | SALESMAN            | 7698 | 1981-09-08 | 1500 |    0 |     30 |       5 | SAND DUST    | sales@2017 | NULL       |        1 |      |
+|  7876 | ADAMS    | M      | CLERK               | 7788 | 1983-01-12 | 1100 | NULL |     20 |       1 | CRAZY ANYONE | a12recmpm  | 7132300086 |        1 |      |
+|  7900 | JAMES    | M      | CLERK               | 7698 | 1981-12-03 |  950 | NULL |     30 |       2 | CRAZY LEADER | sales@2017 | 7132300042 |        1 |      |
+|  7902 | FORD     | M      | ANALYST             | 7566 | 1981-12-03 | 3000 | NULL |     20 |       4 | CONBRIO      | a12recmpm  | NULL       |        0 |      |
+|  7919 | HOFFMAN  | M      | MANAGER             | 7566 | 1982-03-24 | 4150 | NULL |     30 |       3 | INTERVAL     | sales@2017 | NULL       |        1 |      |
+|  7920 | GRASS    | M      | SALESMAN            | 7919 | 1980-02-14 | 2575 | 2700 |     30 |       5 | GRASS        | sales@2017 | NULL       |        1 |      |
+|  7934 | MILLER   | M      | CLERK               | 7782 | 1982-01-23 | 1300 | NULL |     10 |       2 | QUARTERNOTE  | r50mpm     | 7132300055 |        0 |      |
+|  7945 | AARUSH   | M      | SALESMAN            | 7902 | 1980-02-14 | 1350 | 2700 |     30 |    NULL | AARUSH       | ABCDEF     | NULL       |        0 |      |
+|  7949 | ALEX     | M      | MANAGER             | 7698 | 1982-01-24 | 1250 |  500 |     30 |       5 | QUARTERREST  | sales@2017 | 7156567183 |        1 |      |
+|  8433 | NATASHA  | F      | CLERK               | 7920 | 1981-07-19 | 1750 | NULL |     30 |       1 | NATASHA      | sales@2017 | NULL       |        1 |      |
+|  9400 | SANGITA  | F      | Compliance officers | 7920 | 1981-07-19 | 1750 | NULL |     50 |       1 | SANGITA      | NULL       | NULL       |        1 |      |
+|  9473 | SUPRIYA  | F      | ANALYST             | 7920 | 1981-07-19 | 1750 | NULL |     50 |       1 | SUPRIYA      | XYZ@1234   | NULL       |        1 |      |
++-------+----------+--------+---------------------+------+------------+------+------+--------+---------+--------------+------------+------------+----------+------+
+28 rows in set (0.00 sec)
+
+37.	Write a correlated sub-query to list out the employees who earn more than the average salary of their department.
+
+ANS->
+mysql> SELECT A.DEPTNO, A.ENAME,A.SAL FROM EMP A JOIN (SELECT DEPTNO R1, AVG(SAL) R2 FROM EMP GROUP BY DEPTNO) AS T1 WHERE A.DEPTNO= T1.R1  AND A.SAL > T1.R2 ORDER BY A.DEPTNO;
++--------+---------+------+
+| DEPTNO | ENAME   | SAL  |
++--------+---------+------+
+|     10 | AARAV   | 3350 |
+|     10 | KING    | 5000 |
+|     20 | JONES   | 2975 |
+|     20 | SCOTT   | 3000 |
+|     20 | FRED    | 5000 |
+|     20 | FORD    | 3000 |
+|     30 | BLAKE   | 2850 |
+|     30 | HOFFMAN | 4150 |
+|     30 | GRASS   | 2575 |
++--------+---------+------+
+9 rows in set (0.00 sec)
+
+38.	Find the 2nd maximum salary.
+39.	Select the duplicate records (Records, which are inserted, that already exist) in the EMP table.
+
+40.	List the Employees in Deptno 10 other than King.
+ANS->
+
+mysql> SELECT ENAME FROM (SELECT DEPTNO, ENAME FROM EMP WHERE DEPTNO=10 AND ENAME<>'KING')T1;
++--------+
+| ENAME  |
++--------+
+| AARAV  |
+| THOMAS |
+| CLARK  |
+| MILLER |
++--------+
+4 rows in set (0.00 sec)
+
+
+/////////////////////////////////////////////////////////////////END/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////ASSIGNMENT 6.2/////////////////////////////////////////////////////////////////////////////////
+
+
+1.	Write a query to display the number of people with same job.
+
+ANS->
+
+mysql> SELECT R1, R2 FROM (SELECT JOB R1 , COUNT(*) R2 FROM EMP GROUP BY JOB)T1 WHERE R2> 1;
++---------------------+----+
+| R1                  | R2 |
++---------------------+----+
+| Compliance officers |  3 |
+| Public Relation     |  2 |
+| CLERK               |  7 |
+| SALESMAN            |  6 |
+| MANAGER             |  5 |
+| ANALYST             |  3 |
++---------------------+----+
+6 rows in set (0.00 sec)
+
+
+2.	Determine the number of managers without listing them.
+
+ANS->
+
+mysql> SELECT SUM(R3) `number of managers IN EMP` FROM (SELECT DENSE_RANK() OVER()  R3, A.ENAME R1, COUNT(*) R2 FROM EMP A JOIN EMP B WHERE A.EMPNO=B.MGR GROUP BY A.ENAME)T1;
++---------------------------+
+| number of managers IN EMP |
++---------------------------+
+|                         8 |
++---------------------------+
+1 row in set (0.00 sec)
+
+3.	Write a query that will display the difference between the highest and lowest salaries
+
+ANS->
+mysql> SELECT (SELECT MAX(SAL) FROM EMP) - (SELECT MIN(SAL) FROM EMP) ` DIFF OF highest and lowest salaries`;
++-------------------------------------+
+| DIFF OF highest and lowest salaries |
++-------------------------------------+
+|                                4200 |
++-------------------------------------+
+1 row in set, 1 warning (0.00 sec)
+
+	
+4.	Display the manager number and salary of the lowest paid employee for that manager. 
+
+mysql> SELECT R1 EMPLOYEE, MIN(R3) `MINIMUM PAY EMP` FROM (SELECT B.MGR  R1, B.ENAME R2, B.SAL R3  FROM EMP A JOIN EMP B WHERE A.EMPNO=B.MGR)T1 GROUP BY R1;
++----------+-----------------+
+| EMPLOYEE | MINIMUM PAY EMP |
++----------+-----------------+
+|     7920 |            1750 |
+|     7902 |             800 |
+|     7698 |             950 |
+|     7839 |            2450 |
+|     7566 |            3000 |
+|     7788 |            1100 |
+|     7919 |            2575 |
+|     7782 |            1300 |
++----------+-----------------+
+8 rows in set (0.00 sec)
+
+
+5.	Write a query to display the department number, location, number of employees and the average salary for all employees in that department.
+
+ANS->
+mysql> SELECT A.DEPTNO, A.LOC, T1.R2 `NO OF EMP`, T1.R3 `AVERAGE SALARY` FROM DEPT A JOIN (SELECT DEPTNO R1, COUNT(ENAME) R2 ,AVG(SAL) R3 FROM EMP GROUP BY DEPTNO) AS T1 ON A.DEPTNO=T1.R1;
++--------+----------+-----------+----------------+
+| DEPTNO | LOC      | NO OF EMP | AVERAGE SALARY |
++--------+----------+-----------+----------------+
+|     10 | NEW YORK |         5 |      2770.0000 |
+|     20 | DALLAS   |         8 |      2421.8750 |
+|     30 | CHICAGO  |        12 |      1852.0833 |
+|     50 | PUNE     |         3 |      1750.0000 |
++--------+----------+-----------+----------------+
+4 rows in set (0.00 sec)
+
+
+
+6.	Find out the department name in which the maximum number of employees works
+
+ANS->
+
+mysql>  SELECT R1 `DEPATMENT NAME`, R2 `MAXIMUM NO OF EMP` FROM (SELECT DNAME R1, COUNT(*)R2 FROM (SELECT * FROM EMP NATURAL JOIN DEPT WHERE EMP.DEPTNO=DEPT.DEPTNO)T1 GROUP BY DNAME ORDER BY R2)T2  WHERE R2=(SELECT MAX(R2) FROM (SELECT DNAME R1, COUNT(*)R2 FROM (SELECT * FROM EMP NATURAL JOIN DEPT WHERE EMP.DEPTNO=DEPT.DEPTNO)T6 GROUP BY DNAME ORDER BY R2)T5) ;
++----------------+-------------------+
+| DEPATMENT NAME | MAXIMUM NO OF EMP |
++----------------+-------------------+
+| SALES          |                11 |
++----------------+-------------------+
+1 row in set (0.00 sec)
+
+ANS-2->
+
+mysql> SELECT DNAME R1, COUNT(*)R2 FROM (SELECT * FROM EMP NATURAL JOIN DEPT WHERE EMP.DEPTNO=DEPT.DEPTNO)T1 GROUP BY DNAME ORDER BY R2 DESC LIMIT 1 ;
++-------+----+
+| R1    | R2 |
++-------+----+
+| SALES | 11 |
++-------+----+
+1 row in set (0.00 sec)
+
+
+
+
+
+
+
+
+
 
